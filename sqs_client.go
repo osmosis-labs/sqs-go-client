@@ -7,10 +7,11 @@ import (
 	"github.com/osmosis-labs/osmoutil-go/httputil"
 )
 
-type SQSI interface {
+// SQS is the interface for the Osmosis Sidecar Query Server (SQS) client.
+type SQS interface {
 	GetPrices(ctx context.Context, denoms []string) (map[string]map[string]string, error)
 	GetTokensMetadata(ctx context.Context) (map[string]OsmosisTokenMetadata, error)
-	GetRoute(ctx context.Context, tokenInDenom, tokenOutDenom string, tokenInAmount int64) (SQSQuoteResponse, error)
+	GetRoute(ctx context.Context, options ...RouterQuoteOption) (SQSQuoteResponse, error)
 }
 
 type sqs struct {
@@ -35,6 +36,7 @@ func WithAPIKey(apiKey string, sqs *sqs) *sqs {
 	return sqs
 }
 
+// GetPrices implements SQS
 func (s *sqs) GetPrices(ctx context.Context, denoms []string) (map[string]map[string]string, error) {
 
 	priceURL := fmt.Sprintf("%s/tokens/prices?base=%s,%s", s.url, denoms[0], denoms[1])
@@ -46,6 +48,7 @@ func (s *sqs) GetPrices(ctx context.Context, denoms []string) (map[string]map[st
 	return response, nil
 }
 
+// GetTokensMetadata implements SQS
 func (o *sqs) GetTokensMetadata(ctx context.Context) (map[string]OsmosisTokenMetadata, error) {
 
 	tokenMetadataURL := fmt.Sprintf("%s/tokens/metadata", o.url)
@@ -57,8 +60,22 @@ func (o *sqs) GetTokensMetadata(ctx context.Context) (map[string]OsmosisTokenMet
 	return response, nil
 }
 
-func (o *sqs) GetRoute(ctx context.Context, tokenInDenom, tokenOutDenom string, tokenInAmount int64) (SQSQuoteResponse, error) {
-	url := fmt.Sprintf("%s/router/quote?tokenIn=%d%s&tokenOutDenom=%s&humanDenoms=false&singleRoute=true", o.url, tokenInAmount, tokenInDenom, tokenOutDenom)
+// GetRoute implements SQS
+func (o *sqs) GetRoute(ctx context.Context, options ...RouterQuoteOption) (SQSQuoteResponse, error) {
+	opts := RouterQuoteOptions{}
+	for _, option := range options {
+		option(&opts)
+	}
+
+	// Validate the options
+	if err := opts.Validate(); err != nil {
+		return SQSQuoteResponse{}, err
+	}
+
+	// Create the query params
+	queryParams := opts.CreateQueryParams()
+
+	url := fmt.Sprintf("%s/router/quote?%s", o.url, queryParams.Encode())
 
 	var quoteResponse SQSQuoteResponse
 	if err := httputil.RunGet(ctx, url, o.apiKeyHeader, &quoteResponse); err != nil {
