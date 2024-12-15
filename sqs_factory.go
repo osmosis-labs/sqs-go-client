@@ -53,7 +53,7 @@ func WithAPIKeyOpt(apiKey string) InitializeOption {
 
 // Initialize initializes a new SQS client.
 // It validates the options and returns a new SQS client.
-func Initialize(opts InitializeOptions, options ...InitializeOption) (SQS, error) {
+func Initialize(opts InitializeOptions, options ...InitializeOption) (SQSClient, error) {
 
 	// Apply the options
 	for _, option := range options {
@@ -69,7 +69,7 @@ func Initialize(opts InitializeOptions, options ...InitializeOption) (SQS, error
 	url := opts.GetURL()
 
 	// Create the SQS client
-	sqs := NewOsmosisSQS(url)
+	sqs := NewClient(url)
 
 	// Add the API key if applicable.
 	if opts.APIKey != "" {

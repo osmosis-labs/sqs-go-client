@@ -79,3 +79,5 @@ func (o *RouterQuoteOptions) CreateQueryParams() url.Values {
 	}
 	return queryParams
 }
+
+var _ Options = &RouterQuoteOptions{}

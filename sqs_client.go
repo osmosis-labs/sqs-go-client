@@ -7,9 +7,9 @@ import (
 	"github.com/osmosis-labs/osmoutil-go/httputil"
 )
 
-// SQS is the interface for the Osmosis Sidecar Query Server (SQS) client.
-type SQS interface {
-	GetPrices(ctx context.Context, denoms []string) (map[string]map[string]string, error)
+// SQSClient is the interface for the Osmosis Sidecar Query Server (SQSClient) client.
+type SQSClient interface {
+	GetPrices(ctx context.Context, denoms []string, options ...TokenPricesOption) (map[string]map[string]string, error)
 	GetTokensMetadata(ctx context.Context) (map[string]OsmosisTokenMetadata, error)
 	GetRoute(ctx context.Context, options ...RouterQuoteOption) (SQSQuoteResponse, error)
 }
@@ -19,9 +19,8 @@ type sqs struct {
 	apiKeyHeader map[string]string
 }
 
-// NewOsmosisSQS creates a new OsmosisSQS client.
-func NewOsmosisSQS(url string) *sqs {
-
+// NewClient creates a new OsmosisSQS client.
+func NewClient(url string) *sqs {
 	return &sqs{
 		url:          url,
 		apiKeyHeader: nil,
@@ -36,19 +35,23 @@ func WithAPIKey(apiKey string, sqs *sqs) *sqs {
 	return sqs
 }
 
-// GetPrices implements SQS
-func (s *sqs) GetPrices(ctx context.Context, denoms []string) (map[string]map[string]string, error) {
+// GetPrices implements SQSClient
+func (s *sqs) GetPrices(ctx context.Context, denoms []string, options ...TokenPricesOption) (map[string]map[string]string, error) {
+	// Apply the options
+	opts := TokenPricesOptions{}
+	for _, option := range options {
+		option(&opts)
+	}
 
-	priceURL := fmt.Sprintf("%s/tokens/prices?base=%s,%s", s.url, denoms[0], denoms[1])
 	var response map[string]map[string]string
-	if err := httputil.RunGet(ctx, priceURL, s.apiKeyHeader, &response); err != nil {
+	if err := s.httpGetWithOptions(ctx, "tokens/prices", &response, &opts); err != nil {
 		return nil, fmt.Errorf("error getting base/USDC price: %v", err)
 	}
 
 	return response, nil
 }
 
-// GetTokensMetadata implements SQS
+// GetTokensMetadata implements SQSClient
 func (o *sqs) GetTokensMetadata(ctx context.Context) (map[string]OsmosisTokenMetadata, error) {
 
 	tokenMetadataURL := fmt.Sprintf("%s/tokens/metadata", o.url)
@@ -67,20 +70,31 @@ func (o *sqs) GetRoute(ctx context.Context, options ...RouterQuoteOption) (SQSQu
 		option(&opts)
 	}
 
-	// Validate the options
-	if err := opts.Validate(); err != nil {
-		return SQSQuoteResponse{}, err
-	}
-
-	// Create the query params
-	queryParams := opts.CreateQueryParams()
-
-	url := fmt.Sprintf("%s/router/quote?%s", o.url, queryParams.Encode())
-
 	var quoteResponse SQSQuoteResponse
-	if err := httputil.RunGet(ctx, url, o.apiKeyHeader, &quoteResponse); err != nil {
+	if err := o.httpGetWithOptions(ctx, "router/quote", &quoteResponse, &opts); err != nil {
 		return SQSQuoteResponse{}, err
 	}
 
 	return quoteResponse, nil
+}
+
+// httpGetWithOptions is a helper function to make an HTTP GET request with options.
+// It validates the options, retrieves the query params, and makes the request, parsing the response
+// into the given response paramter.
+func (o *sqs) httpGetWithOptions(ctx context.Context, endpoint string, response interface{}, options Options) error {
+	// Validate the options
+	if err := options.Validate(); err != nil {
+		return err
+	}
+
+	// Create the query params
+	queryParams := options.CreateQueryParams()
+
+	url := fmt.Sprintf("%s/%s?%s", o.url, endpoint, queryParams.Encode())
+
+	if err := httputil.RunGet(ctx, url, o.apiKeyHeader, response); err != nil {
+		return err
+	}
+
+	return nil
 }
