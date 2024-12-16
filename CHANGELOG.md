@@ -35,6 +35,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## v0.0.4
+
+- Add SQSMock to support testing.
+
 ## v0.0.3
 
 - Add WithCustomURL option to Initialize.
