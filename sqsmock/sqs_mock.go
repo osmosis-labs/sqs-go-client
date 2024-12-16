@@ -22,8 +22,8 @@ func (s *SQSMock) GetPrices(ctx context.Context, options ...sqsclient.TokenPrice
 	return nil, nil
 }
 
-// GetRoute implements sqsclient.SQSClient.
-func (s *SQSMock) GetRoute(ctx context.Context, options ...sqsclient.RouterQuoteOption) (sqsclient.SQSQuoteResponse, error) {
+// GetQuote implements sqsclient.SQSClient.
+func (s *SQSMock) GetQuote(ctx context.Context, options ...sqsclient.RouterQuoteOption) (sqsclient.SQSQuoteResponse, error) {
 	if s.GetRouteFunc != nil {
 		return s.GetRouteFunc(ctx, options...)
 	}

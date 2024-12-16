@@ -35,7 +35,7 @@ func main() {
 
 	// Get route from uosmo to uion
 	// See other options in router_quote_options.go
-	route, err := sqs.GetRoute(ctx, sqsclient.WithIsSingleRoute(), sqsclient.WithOutGivenIn(1000000, uosmoDenom, uionDenom))
+	route, err := sqs.GetQuote(ctx, sqsclient.WithIsSingleRoute(), sqsclient.WithOutGivenIn(1000000, uosmoDenom, uionDenom))
 	if err != nil {
 		panic(err)
 	}

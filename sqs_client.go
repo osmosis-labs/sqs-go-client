@@ -11,7 +11,7 @@ import (
 type SQSClient interface {
 	GetPrices(ctx context.Context, options ...TokenPricesOption) (map[string]map[string]string, error)
 	GetTokensMetadata(ctx context.Context) (map[string]OsmosisTokenMetadata, error)
-	GetRoute(ctx context.Context, options ...RouterQuoteOption) (SQSQuoteResponse, error)
+	GetQuote(ctx context.Context, options ...RouterQuoteOption) (SQSQuoteResponse, error)
 }
 
 type sqs struct {
@@ -63,8 +63,8 @@ func (o *sqs) GetTokensMetadata(ctx context.Context) (map[string]OsmosisTokenMet
 	return response, nil
 }
 
-// GetRoute implements SQS
-func (o *sqs) GetRoute(ctx context.Context, options ...RouterQuoteOption) (SQSQuoteResponse, error) {
+// GetQuote implements SQS
+func (o *sqs) GetQuote(ctx context.Context, options ...RouterQuoteOption) (SQSQuoteResponse, error) {
 	opts := RouterQuoteOptions{}
 	for _, option := range options {
 		option(&opts)
