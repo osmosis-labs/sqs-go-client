@@ -98,18 +98,18 @@ func (o *RouterQuoteOptions) CreateQueryParams() url.Values {
 }
 
 // WithOutGivenIn sets the options for an out given in swap for the /router/quote endpoint.
-func WithOutGivenIn(tokenIn string, tokenOutDenom string) RouterQuoteOption {
+func WithOutGivenIn[T any](inAmount T, tokenInDenom string, tokenOutDenom string) RouterQuoteOption {
 	return func(opts *RouterQuoteOptions) {
-		opts.TokenIn = tokenIn
+		opts.TokenIn = fmt.Sprintf("%v%s", inAmount, tokenInDenom)
 		opts.TokenOutDenom = tokenOutDenom
 	}
 }
 
 // WithInGivenOut sets the options for an in given out swap for the /router/quote endpoint.
-func WithInGivenOut(tokenOut string, tokenInDenom string) RouterQuoteOption {
+func WithInGivenOut[T any](outAmount T, tokenOutDenom string, tokenInDenom string) RouterQuoteOption {
 	return func(opts *RouterQuoteOptions) {
 		opts.TokenInDenom = tokenInDenom
-		opts.TokenOut = tokenOut
+		opts.TokenOut = fmt.Sprintf("%v%s", outAmount, tokenOutDenom)
 	}
 }
 

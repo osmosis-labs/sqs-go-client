@@ -36,7 +36,7 @@ func TestGetRoute(t *testing.T) {
 	sqs, err := sqsclient.Initialize()
 	require.NoError(t, err)
 
-	route, err := sqs.GetRoute(ctx, sqsclient.WithOutGivenIn("1000000"+uosmoDenom, uionDenom))
+	route, err := sqs.GetRoute(ctx, sqsclient.WithOutGivenIn(1000000, uosmoDenom, uionDenom))
 	require.NoError(t, err)
 
 	t.Logf("route: %+v", route)
