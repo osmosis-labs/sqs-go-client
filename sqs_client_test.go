@@ -33,7 +33,7 @@ func TestGetRoute(t *testing.T) {
 
 	ctx := context.Background()
 
-	sqs, err := sqsclient.Initialize()
+	sqs, err := sqsclient.Initialize(sqsclient.WithCustomURL("https://sqs.osmosis.zone"))
 	require.NoError(t, err)
 
 	route, err := sqs.GetRoute(ctx, sqsclient.WithOutGivenIn(1000000, uosmoDenom, uionDenom))

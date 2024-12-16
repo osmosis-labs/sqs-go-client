@@ -35,6 +35,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## v0.0.3
+
+- Add WithCustomURL option to Initialize.
+
 ## v0.0.2
 
 - Improve router/quote WithOutGivenIn and WithInGivenOut options.

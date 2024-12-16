@@ -51,6 +51,13 @@ func WithAPIKeyOpt(apiKey string) InitializeOption {
 	}
 }
 
+// WithCustomURL is an option to set the custom URL for the SQS client.
+func WithCustomURL(customURL string) InitializeOption {
+	return func(opts *InitializeOptions) {
+		opts.CustomURL = customURL
+	}
+}
+
 // Initialize initializes a new SQS client.
 // It validates the options and returns a new SQS client.
 // If no environment is provided, it defaults to Prod.
@@ -63,8 +70,8 @@ func Initialize(options ...InitializeOption) (SQSClient, error) {
 		option(&opts)
 	}
 
-	// If no environment is provided, it defaults to Prod.
-	if opts.Environment == "" {
+	// If no environment or custom URL is provided, it defaults to Prod.
+	if opts.Environment == "" && opts.CustomURL == "" {
 		opts.Environment = Prod
 	}
 
