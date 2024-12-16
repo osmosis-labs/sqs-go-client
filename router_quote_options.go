@@ -3,7 +3,6 @@ package sqsclient
 import (
 	"fmt"
 	"net/url"
-	"regexp"
 	"strconv"
 )
 
@@ -37,8 +36,6 @@ type RouterQuoteOptions struct {
 // RouterQuoteOption is the type for the options for the /router/quote endpoint.
 type RouterQuoteOption func(opts *RouterQuoteOptions)
 
-var regexToken = regexp.MustCompile(`^\d+[a-zA-Z]+$`)
-
 // Validate validates the RouterQuoteOptions.
 // It returns an error if the options are invalid.
 func (o *RouterQuoteOptions) Validate() error {
@@ -54,18 +51,6 @@ func (o *RouterQuoteOptions) Validate() error {
 	}
 	if o.TokenInDenom != "" && o.TokenOutDenom != "" {
 		return fmt.Errorf("token in denom and token out denom cannot be set at the same time")
-	}
-
-	if o.IsOutGivenIn() {
-		// Validate the token in
-		if !regexToken.MatchString(o.TokenIn) {
-			return fmt.Errorf("invalid token in, must be a number followed by a denom: %v", o.TokenIn)
-		}
-	} else {
-		// Validate the token out
-		if !regexToken.MatchString(o.TokenOut) {
-			return fmt.Errorf("invalid token out, must be a number followed by a denom: %v", o.TokenOut)
-		}
 	}
 
 	return nil
