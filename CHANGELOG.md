@@ -35,7 +35,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## v0.0.5
+##  v0.0.5 - 0.0.6
 
 - rename GetRoute to GetQuote
 
