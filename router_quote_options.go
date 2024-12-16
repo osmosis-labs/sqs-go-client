@@ -29,6 +29,9 @@ type RouterQuoteOptions struct {
 	// If true, split routes are not returned.
 	// If false, split routes are attempted to be computed.
 	IsSingleRoute bool
+
+	// AppendBaseFee is whether the base fee is appended to the quote.
+	AppendBaseFee bool
 }
 
 // RouterQuoteOption is the type for the options for the /router/quote endpoint.
@@ -94,6 +97,11 @@ func (o *RouterQuoteOptions) CreateQueryParams() url.Values {
 	if o.IsSingleRoute {
 		queryParams.Add("singleRoute", "true")
 	}
+
+	if o.AppendBaseFee {
+		queryParams.Add("appendBaseFee", "true")
+	}
+
 	return queryParams
 }
 
@@ -117,6 +125,13 @@ func WithInGivenOut[T any](outAmount T, tokenOutDenom string, tokenInDenom strin
 func WithHumanDenoms() RouterQuoteOption {
 	return func(opts *RouterQuoteOptions) {
 		opts.HumanDenoms = true
+	}
+}
+
+// WithAppendBaseFee sets the options to append the base fee to the quote.
+func WithAppendBaseFee() RouterQuoteOption {
+	return func(opts *RouterQuoteOptions) {
+		opts.AppendBaseFee = true
 	}
 }
 
