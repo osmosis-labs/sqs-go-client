@@ -120,6 +120,15 @@ func WithHumanDenoms() RouterQuoteOption {
 	}
 }
 
+// WithIsSingleRoute sets the options for a single route for the /router/quote endpoint.
+// If true, split routes are not returned.
+// If false, split routes are attempted to be computed.
+func WithIsSingleRoute() RouterQuoteOption {
+	return func(opts *RouterQuoteOptions) {
+		opts.IsSingleRoute = true
+	}
+}
+
 // WithIsSingleRoute sets the options for a single route.
 
 var _ Options = &RouterQuoteOptions{}
