@@ -35,6 +35,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## v0.0.8
+
+- Export SQSQuoteResponse, SQSPool, SQSRoute, SQSPriceInfo, Coin, Pool, Route, PriceInfo.
+
 ## v0.0.7
 
 - Add WithAppendBaseFee option to GetQuote and extend SQSQuoteResponse with more data.
