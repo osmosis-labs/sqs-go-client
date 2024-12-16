@@ -1,4 +1,4 @@
-package sqs
+package sqsclient
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 
 // SQSClient is the interface for the Osmosis Sidecar Query Server (SQSClient) client.
 type SQSClient interface {
-	GetPrices(ctx context.Context, denoms []string, options ...TokenPricesOption) (map[string]map[string]string, error)
+	GetPrices(ctx context.Context, options ...TokenPricesOption) (map[string]map[string]string, error)
 	GetTokensMetadata(ctx context.Context) (map[string]OsmosisTokenMetadata, error)
 	GetRoute(ctx context.Context, options ...RouterQuoteOption) (SQSQuoteResponse, error)
 }
@@ -36,7 +36,7 @@ func WithAPIKey(apiKey string, sqs *sqs) *sqs {
 }
 
 // GetPrices implements SQSClient
-func (s *sqs) GetPrices(ctx context.Context, denoms []string, options ...TokenPricesOption) (map[string]map[string]string, error) {
+func (s *sqs) GetPrices(ctx context.Context, options ...TokenPricesOption) (map[string]map[string]string, error) {
 	// Apply the options
 	opts := TokenPricesOptions{}
 	for _, option := range options {

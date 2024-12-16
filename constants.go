@@ -1,4 +1,4 @@
-package sqs
+package sqsclient
 
 const (
 	APIKeyHeader = "x-api-key-header"

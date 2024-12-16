@@ -1,4 +1,4 @@
-package sqs
+package sqsclient
 
 // SQSEnvironment represents an environment supported by the Osmosis team.
 type SQSEnvironment string

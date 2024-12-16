@@ -1,4 +1,4 @@
-package sqs
+package sqsclient
 
 import "errors"
 
@@ -53,11 +53,19 @@ func WithAPIKeyOpt(apiKey string) InitializeOption {
 
 // Initialize initializes a new SQS client.
 // It validates the options and returns a new SQS client.
-func Initialize(opts InitializeOptions, options ...InitializeOption) (SQSClient, error) {
+// If no environment is provided, it defaults to Prod.
+// Only one of environment or custom url is allowed.
+func Initialize(options ...InitializeOption) (SQSClient, error) {
+	opts := InitializeOptions{}
 
 	// Apply the options
 	for _, option := range options {
 		option(&opts)
+	}
+
+	// If no environment is provided, it defaults to Prod.
+	if opts.Environment == "" {
+		opts.Environment = Prod
 	}
 
 	// Validate the options
