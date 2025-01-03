@@ -56,7 +56,7 @@ func (o *sqs) GetTokensMetadata(ctx context.Context) (map[string]OsmosisTokenMet
 
 	tokenMetadataURL := fmt.Sprintf("%s/tokens/metadata", o.url)
 	var response map[string]OsmosisTokenMetadata
-	if err := httputil.RunGet(ctx, tokenMetadataURL, o.apiKeyHeader, &response); err != nil {
+	if _, err := httputil.Get(ctx, tokenMetadataURL, o.apiKeyHeader, &response); err != nil {
 		return nil, fmt.Errorf("error getting token metadata: %v", err)
 	}
 
@@ -70,8 +70,15 @@ func (o *sqs) GetQuote(ctx context.Context, options ...RouterQuoteOption) (SQSQu
 		option(&opts)
 	}
 
+	var urlExtension string
+	if len(opts.PoolIDs) == 0 {
+		urlExtension = "router/quote"
+	} else {
+		urlExtension = "router/custom-direct-quote"
+	}
+
 	var quoteResponse SQSQuoteResponse
-	if err := o.httpGetWithOptions(ctx, "router/quote", &quoteResponse, &opts); err != nil {
+	if err := o.httpGetWithOptions(ctx, urlExtension, &quoteResponse, &opts); err != nil {
 		return SQSQuoteResponse{}, err
 	}
 
@@ -92,7 +99,7 @@ func (o *sqs) httpGetWithOptions(ctx context.Context, endpoint string, response 
 
 	url := fmt.Sprintf("%s/%s?%s", o.url, endpoint, queryParams.Encode())
 
-	if err := httputil.RunGet(ctx, url, o.apiKeyHeader, response); err != nil {
+	if _, err := httputil.Get(ctx, url, o.apiKeyHeader, response); err != nil {
 		return err
 	}
 

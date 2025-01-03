@@ -35,6 +35,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## v0.0.10
+
+- Update osmoutils-go and add WithOutGivenInCustom option to GetQuote.
+
 ## v0.0.9
 
 - Remove regex validation from RouterQuoteOptions tokenIn and tokenOut.
