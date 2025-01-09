@@ -3,7 +3,7 @@ module github.com/osmosis-labs/sqs-go-client
 go 1.22.5
 
 require (
-	github.com/osmosis-labs/osmoutil-go v0.0.11-0.20241230202524-00a419fe2dc4
+	github.com/osmosis-labs/osmoutil-go v0.0.11
 	github.com/stretchr/testify v1.10.0
 )
 
