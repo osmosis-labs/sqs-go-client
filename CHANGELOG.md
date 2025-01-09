@@ -35,7 +35,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## Unreleased
+## v0.0.10
 
 - Update osmoutils-go and add WithOutGivenInCustom option to GetQuote.
 
