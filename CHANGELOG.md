@@ -35,6 +35,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## v0.0.12
+
+- Update osmoutils-go to v0.0.16.
+
 ## v0.0.11
 
 - Update api key header to x-api-key.
