@@ -30,7 +30,7 @@ func NewClient(url string) *sqs {
 // WithAPIKey is a helper function to set the API key header for the sqs client.
 func WithAPIKey(apiKey string, sqs *sqs) *sqs {
 	sqs.apiKeyHeader = map[string]string{
-		"x-api-key-header": apiKey,
+		"x-api-key": apiKey,
 	}
 	return sqs
 }
