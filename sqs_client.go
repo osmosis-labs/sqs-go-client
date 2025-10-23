@@ -7,6 +7,26 @@ import (
 	"github.com/osmosis-labs/osmoutil-go/httputil"
 )
 
+type sqsExactInQuoteResponse struct {
+	AmountIn                Coin      `json:"amount_in"`
+	AmountOut               string    `json:"amount_out"`
+	Route                   []Route   `json:"route"`
+	EffectiveFee            string    `json:"effective_fee"`
+	PriceImpact             string    `json:"price_impact"`
+	InBaseOutQuoteSpotPrice string    `json:"in_base_out_quote_spot_price"`
+	PriceInfo               PriceInfo `json:"price_info"`
+}
+
+type sqsExactOutQuoteResponse struct {
+	AmountIn                string    `json:"amount_in"`
+	AmountOut               Coin      `json:"amount_out"`
+	Route                   []Route   `json:"route"`
+	EffectiveFee            string    `json:"effective_fee"`
+	PriceImpact             string    `json:"price_impact"`
+	InBaseOutQuoteSpotPrice string    `json:"in_base_out_quote_spot_price"`
+	PriceInfo               PriceInfo `json:"price_info"`
+}
+
 // SQSClient is the interface for the Osmosis Sidecar Query Server (SQSClient) client.
 type SQSClient interface {
 	GetPrices(ctx context.Context, options ...TokenPricesOption) (map[string]map[string]string, error)
@@ -36,7 +56,7 @@ func WithAPIKey(apiKey string, sqs *sqs) *sqs {
 }
 
 // GetPrices implements SQSClient
-func (s *sqs) GetPrices(ctx context.Context, options ...TokenPricesOption) (map[string]map[string]string, error) {
+func (o *sqs) GetPrices(ctx context.Context, options ...TokenPricesOption) (map[string]map[string]string, error) {
 	// Apply the options
 	opts := TokenPricesOptions{}
 	for _, option := range options {
@@ -44,7 +64,7 @@ func (s *sqs) GetPrices(ctx context.Context, options ...TokenPricesOption) (map[
 	}
 
 	var response map[string]map[string]string
-	if err := s.httpGetWithOptions(ctx, "tokens/prices", &response, &opts); err != nil {
+	if err := o.httpGetWithOptions(ctx, "tokens/prices", &response, &opts); err != nil {
 		return nil, fmt.Errorf("error getting base/USDC price: %v", err)
 	}
 
@@ -77,12 +97,56 @@ func (o *sqs) GetQuote(ctx context.Context, options ...RouterQuoteOption) (SQSQu
 		urlExtension = "router/custom-direct-quote"
 	}
 
-	var quoteResponse SQSQuoteResponse
-	if err := o.httpGetWithOptions(ctx, urlExtension, &quoteResponse, &opts); err != nil {
-		return SQSQuoteResponse{}, err
+	if opts.IsOutGivenIn() {
+		var exactInResponse sqsExactInQuoteResponse
+		if err := o.httpGetWithOptions(ctx, urlExtension, &exactInResponse, &opts); err != nil {
+			return SQSQuoteResponse{}, err
+		}
+		return convertExactInResponseToQuoteResponse(exactInResponse, opts), nil
+	} else {
+		var exactOutResponse sqsExactOutQuoteResponse
+		if err := o.httpGetWithOptions(ctx, urlExtension, &exactOutResponse, &opts); err != nil {
+			return SQSQuoteResponse{}, err
+		}
+		return convertExactOutResponseToQuoteResponse(exactOutResponse, opts), nil
 	}
 
-	return quoteResponse, nil
+}
+
+// convertExactInResponseToQuoteResponse converts an OutGivenIn response to the standard SQSQuoteResponse format
+func convertExactInResponseToQuoteResponse(response sqsExactInQuoteResponse, opts RouterQuoteOptions) SQSQuoteResponse {
+	var outputDenom string
+	if len(opts.TokenOutDenom) > 0 {
+		outputDenom = opts.TokenOutDenom[0]
+	}
+
+	return SQSQuoteResponse{
+		AmountIn:                response.AmountIn,
+		AmountOut:               Coin{Denom: outputDenom, Amount: response.AmountOut},
+		Route:                   response.Route,
+		EffectiveFee:            response.EffectiveFee,
+		PriceImpact:             response.PriceImpact,
+		InBaseOutQuoteSpotPrice: response.InBaseOutQuoteSpotPrice,
+		PriceInfo:               response.PriceInfo,
+	}
+}
+
+// convertExactOutResponseToQuoteResponse converts an InGivenOut response to the standard SQSQuoteResponse format
+func convertExactOutResponseToQuoteResponse(response sqsExactOutQuoteResponse, opts RouterQuoteOptions) SQSQuoteResponse {
+	var inputDenom string
+	if len(opts.TokenInDenom) > 0 {
+		inputDenom = opts.TokenInDenom[0]
+	}
+
+	return SQSQuoteResponse{
+		AmountIn:                Coin{Denom: inputDenom, Amount: response.AmountIn},
+		AmountOut:               response.AmountOut,
+		Route:                   response.Route,
+		EffectiveFee:            response.EffectiveFee,
+		PriceImpact:             response.PriceImpact,
+		InBaseOutQuoteSpotPrice: response.InBaseOutQuoteSpotPrice,
+		PriceInfo:               response.PriceInfo,
+	}
 }
 
 // httpGetWithOptions is a helper function to make an HTTP GET request with options.
