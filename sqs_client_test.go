@@ -2,6 +2,7 @@ package sqsclient_test
 
 import (
 	"context"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -30,7 +31,7 @@ func TestGetTokensMetadata(t *testing.T) {
 	t.Logf("tokens metadata: %+v", metadata)
 }
 
-func TestGetRoute(t *testing.T) {
+func TestGetExactInRoute(t *testing.T) {
 	t.Skip("skipping integration test")
 
 	ctx := context.Background()
@@ -40,6 +41,33 @@ func TestGetRoute(t *testing.T) {
 
 	route, err := sqs.GetQuote(ctx, sqsclient.WithOutGivenIn(1000000, uosmoDenom, uionDenom))
 	require.NoError(t, err)
+
+	require.Equal(t, route.AmountIn.Denom, uosmoDenom)
+	require.Equal(t, route.AmountIn.Amount, "1000000")
+	require.Equal(t, route.AmountOut.Denom, uionDenom)
+	parsedAmount, err := strconv.ParseInt(route.AmountOut.Amount, 10, 64)
+	require.NoError(t, err)
+	require.Greater(t, parsedAmount, int64(0))
+
+	t.Logf("route: %+v", route)
+}
+
+func TestGetExactOutRoute(t *testing.T) {
+	t.Skip("skipping integration test")
+
+	ctx := context.Background()
+
+	sqs, err := sqsclient.Initialize(sqsclient.WithCustomURL("https://sqs.osmosis.zone"))
+	require.NoError(t, err)
+
+	route, err := sqs.GetQuote(ctx, sqsclient.WithInGivenOut(1000000, uionDenom, uosmoDenom))
+	require.NoError(t, err)
+	require.Equal(t, route.AmountOut.Denom, uionDenom)
+	require.Equal(t, route.AmountOut.Amount, "1000000")
+	require.Equal(t, route.AmountIn.Denom, uosmoDenom)
+	parsedAmount, err := strconv.ParseInt(route.AmountIn.Amount, 10, 64)
+	require.NoError(t, err)
+	require.Greater(t, parsedAmount, int64(0))
 
 	t.Logf("route: %+v", route)
 }

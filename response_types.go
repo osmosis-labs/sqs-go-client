@@ -11,7 +11,7 @@ type OsmosisTokenMetadata struct {
 
 type SQSQuoteResponse struct {
 	AmountIn                Coin      "json:\"amount_in\""
-	AmountOut               string    "json:\"amount_out\""
+	AmountOut               Coin      "json:\"amount_out\""
 	Route                   []Route   "json:\"route\""
 	EffectiveFee            string    "json:\"effective_fee\""
 	PriceImpact             string    "json:\"price_impact\""

@@ -35,6 +35,11 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## v0.0.13
+
+- Fixed JSON unmarshaling error when using `WithInGivenOut` option
+- `GetQuote()` now returns `Coin` for both `AmountIn` and `AmountOut` fields, regardless of the underlying quote type, WithOutGivenIn or WithInGivenOut
+
 ## v0.0.12
 
 - Update osmoutils-go to v0.0.16.
